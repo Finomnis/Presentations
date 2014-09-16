@@ -1,0 +1,43 @@
+- integration gpus in the hpx rt
+    -hpxcl
+    -pocl
+
+- hpxcl
+    - gpgpu
+    - opencl
+    - mpi
+        - mpi + gpus
+        - independent, connection between data exchange and calculation has to be done manually
+        - whole cluster in lockstep
+    - hpx over mpi
+        - global ns
+        - one large machine vs explicitely distributed
+        - programming system is simillar to classic opencl (instead of distributed)
+        - data dependencies, 
+    - affect on distributed gpgpu programming
+        - abstracting the whole cluster as one machine
+        - simpler, no need to think in a distributed way
+        - data dependencies due to extensive use of futures
+            -> faster due to prevention of lockstep
+            -> possible to apply programming techniques for single-node opencl
+        - seamless integration of more opencl nodes into the system
+        - possibility to run heterogeneous nodes/opencl devices in one system
+        - easy to port non-distributed code to opencl whilst maintaining descent scaling
+    - hpxcl
+        - implements that. how?
+        - opencl devices as abstract devices in a global namespace
+        - hide network latency by wrapping all interacting calls in futures
+        - classes: kernel, program, buffer, event that represent the correlating
+          cl_program, cl_kernel, cl_mem and cl_event type as classes in the
+          global namespace 
+    - program + kernel
+    - buffer
+    - event
+    - show hello world
+    - ? future work
+___________________________________________________________________________
+
+- pocl
+    - limitation of hpxcl; conflict hpx threads vs os threads
+    - pocl as hpxcl
+

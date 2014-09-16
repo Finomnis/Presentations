@@ -1,14 +1,65 @@
+\documentclass[t]{beamer}
+ \setbeamercovered{transparent}
 
+% Used Packages
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{listings}
 
-\documentclass{beamer}
-\mode<presentation>{}
+% The THEME
+\usetheme{Madrid}
+\setbeamertemplate{navigation symbols}{}
 
-\title{Meaningfull Title.}
+% Title Page
+\title{Distributed GPGPU Computing}
+\author{Martin Stumpf}
+\institute{Ste||ar Group, Louisiana State University}
+\date{\today}
 
-\date{}
-\author{Martin Stumpf\\ Ste||ar Group, Louisiana State University}
+% Title page before every section
+\AtBeginSection[]
+{
+   \begin{frame}
+       \frametitle{Outline}
+       \tableofcontents[currentsection]
+   \end{frame}
+}
 
+%%%% BEGIN OF THE ACTUAL DOCUMENT %%%%
 \begin{document}
 
+\frame{\titlepage}
+\frame{\frametitle{Table of Contents}\tableofcontents}
+
+\section{OpenCL}
+
 \end{document}
+
+
+     
+- intro opencl
+    - what is opencl?
+        - open compute language
+        - language for spmd problems
+        - spmd?
+#- intro gpu's
+#    - what is a gpu?
+#    - why are gpu's a good fit for opencl problems?
+#    - lockstep - maybe
+- distributed opencl - how?
+    - MPI + OpenCL
+        - Message System, data based
+        - calculation, data exchange cycle
+        - problem: implicit barrier between steps
+        - problem: explicit distribution
+- HPX        
+        - what is HPX?
+        - async RPC based
+        - calculation, dependency tree
+        - good fit for opencl, as opencl is in itself also dependency based
+        - easy to program, use cluster as if it were a single machine
+- HPXCL
+
+- POCL?
 
