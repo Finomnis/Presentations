@@ -6,6 +6,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{verbatim}
+\usepackage{textcomp}
 
 % The THEME
 \usetheme{Madrid}
@@ -32,7 +34,160 @@
 \frame{\titlepage}
 \frame{\frametitle{Table of Contents}\tableofcontents}
 
-\section{OpenCL}
+\section{GPGPU - Overview}
+
+
+\subsection{GPGPU}
+\begin{comment}
+    Say:
+        - Elements: ALU (Arithmetic logic unit), CU (controll unit),
+                    Cache (L1-L3)
+        - First thing to realize: More cores.
+            but: every core is slower, usually ~ 1 GHz.
+            also: cores are not as optimized as CPU cores
+        - Next: not every core has a CU!
+            this is important, one needs to take that into consideration if programming gpus.
+          what does that mean?
+        - GPU cores run in LOCKSTEP.
+            - all of them run the same instruction at the same time.
+            - can't run highly conditional code! (efficiently)
+            - why use GPU's then?
+\end{comment}
+
+\begin{frame}
+    \frametitle{CPU vs GPU}
+    "<IMAGE GPU vs CPU>"
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why GPGPU?}
+
+    The \alert{theoretical} calculation power of a GPU is much higher
+    than a CPU.
+
+    \begin{example}
+        CPU (Intel Xeon E5-2670 v3):
+        \begin{itemize}
+            \item 12 Cores, 2.3 GHz, 32 FLOPS/cycle
+            \begin{itemize}
+                \item \alert{884 GFLOPS}
+            \end{itemize}
+            \item Prize: $\sim$ \alert{1500} \$
+        \end{itemize}
+        GPU (NVidia Tesla K40):
+        \begin{itemize}
+            \item 2880 Cores, 745 MHz, 2 FLOPS/cycle
+            \begin{itemize}
+                \item \alert{4291 GFLOPS}
+            \end{itemize}
+            \item Prize: $\sim$ \alert{4000} \$
+        \end{itemize}
+    \end{example}
+    ~\\
+    So, what computational tasks are actually suitable for GPGPU?
+\end{frame}
+
+\begin{frame}
+    \frametitle{Problems suitable for GPGPU}
+    Every problem that fits the \alert{SPMD} programming scheme, can benefit greatly
+    from GPGPU.
+    
+    ~\\ 
+    Examples:
+    \begin{itemize}
+        \item Fluid Simulations
+        \item Mathematical Vector Operations
+        \item Image Processing
+        \item Stencil Based Simulations 
+    \end{itemize}
+    
+    ~\\
+    SPMD based Programming Languages:
+    \begin{itemize}
+        \item CUDA (NVidia)
+        \item OpenCL (Platform independent)
+    \end{itemize}
+\end{frame}
+
+\subsection{OpenCL}
+\begin{frame}
+    \frametitle{OpenCL}
+    "<Image OpenCL host-device(kernel+buffer)>" 
+\end{frame}
+
+\section{The MPI way}
+
+\begin{frame}
+    \frametitle{Distributed GPGPU with MPI}
+\end{frame}
+
+
+
+
+\section{The HPX way}
+
+\subsection{Advantages}
+\begin{frame}
+    \frametitle{Advantages over MPI}
+\end{frame}
+
+\subsection{Affect on distributed GPGPU}
+\begin{frame}
+    \frametitle{Affect on distributed GPGPU programming}
+\end{frame}
+
+\section{HPXCL}
+\subsection{Layout}
+\begin{frame}
+    \frametitle{Layout}
+    % global ns, everything wrapped in components (= abstract devices)
+\end{frame}
+
+\begin{frame}
+    \frametitle{Layout}
+    % similarity to opencl, class overview
+\end{frame}
+
+
+\subsection{Implementing "Hello, World!"}
+\begin{frame}
+    \frametitle{Getting devices}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Writing data to the device}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Creating a kernel}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Executing the kernel}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Reading the result}
+\end{frame}
+
+
+\section{Performance and Scaling}
+
+\subsection{The mandelbrot Renderer} %TODO better title for this subsection
+\begin{frame}
+    \frametitle{bla}
+    %about mandelbrot 
+\end{frame}
+
+\begin{frame}
+    \frametitle{Scaling}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Parallel Efficiency}
+\end{frame}
+
+
 
 \end{document}
 
