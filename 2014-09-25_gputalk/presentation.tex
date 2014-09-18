@@ -1,4 +1,4 @@
-\documentclass[t]{beamer}
+\documentclass{beamer}
  \setbeamercovered{transparent}
 
 % Used Packages
@@ -114,70 +114,174 @@
     \frametitle{OpenCL}
     "<Image OpenCL host-device(kernel+buffer)>" 
 \end{frame}
-
-\section{The MPI way}
-
 \begin{frame}
-    \frametitle{Distributed GPGPU with MPI}
+    \frametitle{OpenCL}
+    \begin{itemize}
+        \item An OpenCL device is split in two components:
+        \begin{itemize}
+            \item The \alert{Buffer}: Represents memory on the device
+            \item The \alert{Kernel}: A C-style function that modifies one or multiple
+                                      elements of a buffer
+        \end{itemize}
+        \item Kernel source code stays plain text and gets compiled at \alert{runtime}
+        \begin{itemize}
+            \item[$\implies$] OpenCL programs are device independent
+        \end{itemize}
+        \item Kernel executions on the device run asynchronous to the host program
+    \end{itemize}
 \end{frame}
 
+\section{The MPI way}
+\begin{comment}
+    Say:
+        - MPI and OpenCL are two independent libraries
+        - connection between data exchange and calculation has to be done
+          manually
+        - whole cluster in lockstep
+            - meaning: calculate, exchange, calculate, exchange
+            - of course, you can do overlaping exchange and calculation,
+              but that needs to be done manually
+            - to use opencl + mpi one needs to have a lot of background knowledge
+              about distributed computing
+\end{comment}
 
+\begin{frame}
+    \frametitle{Distributed OpenCL with MPI}
+    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Distributed OpenCL with MPI}
+    Disadvantages:
+    \begin{itemize}
+        \item MPI and OpenCL are independent from each other
+        \begin{itemize}
+            \item[$\implies$] Connection between computation and data exchange
+                              has to be implemented manually
+        \end{itemize}
+        \item Every OpenCL device can only be accessed within its own node
+        \item If no further methodes are used, the whole cluster will run in lockstep
+    \end{itemize}
+\end{frame}
 
 
 \section{The HPX way}
 
 \subsection{Advantages}
 \begin{frame}
-    \frametitle{Advantages over MPI}
+    \frametitle{HPX}
+    What is HPX?
+    \begin{itemize}
+        \item A scaling C++ runtime system for parallel and distributed applications
+        \item Based on the ParalleX model
+    \end{itemize}
+    ~\\
+    Advantages for distributed OpenCL:
+    \begin{itemize}
+        \item Global Namespace
+        \item Cluster as "one large machine" (MPI: every Node is autonomous)
+        \item Data dependencies (futures) (MPI: Send-Wait)
+    \end{itemize}
 \end{frame}
 
+\begin{comment}
+    Say:
+        Difference to MPI?
+            - only one user program
+            - every opencl device is now global and not just limited to the current node
+            - user program can directly use remote devices
+\end{comment}
+
+\begin{frame}
+    \frametitle{Distributed OpenCL with HPX}
+    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/hpx_opencl.pdf}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Distributed OpenCL with MPI}
+    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
+\end{frame}
+
+
+
 \subsection{Affect on distributed GPGPU}
+\begin{comment}
+    this slide answers the question:
+        what can we achieve with hpx now?
+        data dependencies: due to extensive use of futures
+        sync techniques of std opencl: events, data dependencies.
+        someone who already knows opencl will adapt easily to the new system
+\end{comment}
 \begin{frame}
     \frametitle{Affect on distributed GPGPU programming}
+    \begin{itemize}
+        \item Abstracting the whole cluster as one machine
+        \item Simpler, not need to think in a distributed way
+        \item Data dependencies
+        \begin{itemize}
+            \item faster due to prevention of lockstep
+            \item possible to apply synchronization techniques of standard opencl
+        \end{itemize}
+        \item Seamless integration of more opencl nodes into the system
+        \item Possibility to run heterogeneous nodes/devices in one system
+        \item Easy to port non-distributed code to distributed opencl whilst
+              maintaining descent scaling
+    \end{itemize}
 \end{frame}
 
 \section{HPXCL}
 \subsection{Layout}
 \begin{frame}
     \frametitle{Layout}
-    % global ns, everything wrapped in components (= abstract devices)
-\end{frame}
-
-\begin{frame}
-    \frametitle{Layout}
-    % similarity to opencl, class overview
+    \begin{itemize}
+        \item Is an implementation of that concept.
+        \item Wraps every OpenCL datastructure in a component:
+            \\~\\
+            \begin{tabular}{ r || l }
+                OpenCL       & HPXCL                \\
+                \hline
+                cl\_device   & hpx::opencl::device  \\
+                cl\_program  & hpx::opencl::program \\
+                cl\_kernel   & hpx::opencl::kernel  \\
+                cl\_mem      & hpx::opencl::buffer  \\
+                cl\_event    & hpx::opencl::event   \\
+                ~            & (soon: hpx::future)  \\
+            \end{tabular}
+    \end{itemize}
 \end{frame}
 
 
 \subsection{Implementing "Hello, World!"}
 \begin{frame}
-    \frametitle{Getting devices}
+    \frametitle{Hello, World! - Getting devices}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Writing data to the device}
+    \frametitle{Hello, World! - Writing data to the device}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Creating a kernel}
+    \frametitle{Hello, World! - Creating a kernel}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Executing the kernel}
+    \frametitle{Hello, World! - Executing the kernel}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Reading the result}
+    \frametitle{Hello, World! - Reading the result}
 \end{frame}
 
 
 \section{Performance and Scaling}
 
-\subsection{The mandelbrot Renderer} %TODO better title for this subsection
+\subsection{The Mandelbrot Renderer} %TODO better title for this subsection
 \begin{frame}
     \frametitle{bla}
     %about mandelbrot 
 \end{frame}
+
+\subsection{Results}
 
 \begin{frame}
     \frametitle{Scaling}

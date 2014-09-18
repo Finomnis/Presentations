@@ -22,7 +22,7 @@
             -> possible to apply programming techniques for single-node opencl
         - seamless integration of more opencl nodes into the system
         - possibility to run heterogeneous nodes/opencl devices in one system
-        - easy to port non-distributed code to opencl whilst maintaining descent scaling
+        - easy to port non-distributed code to distributed opencl whilst maintaining descent scaling
     - hpxcl
         - implements that. how?
         - opencl devices as abstract devices in a global namespace
