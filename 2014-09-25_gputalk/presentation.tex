@@ -9,6 +9,7 @@
 \usepackage{verbatim}
 \usepackage{textcomp}
 
+
 % The THEME
 \usetheme{Madrid}
 \setbeamertemplate{navigation symbols}{}
@@ -16,7 +17,7 @@
 % Title Page
 \title{Distributed GPGPU Computing}
 \author{Martin Stumpf}
-\institute{Ste||ar Group, Louisiana State University}
+\institute{Ste||ar Group, LSU}
 \date{\today}
 
 % Title page before every section
@@ -112,10 +113,6 @@
 \subsection{OpenCL}
 \begin{frame}
     \frametitle{OpenCL}
-    "<Image OpenCL host-device(kernel+buffer)>" 
-\end{frame}
-\begin{frame}
-    \frametitle{OpenCL}
     \begin{itemize}
         \item An OpenCL device is split in two components:
         \begin{itemize}
@@ -129,6 +126,10 @@
         \end{itemize}
         \item Kernel executions on the device run asynchronous to the host program
     \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{OpenCL}
+    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/opencl_overview.pdf}
 \end{frame}
 
 \section{The MPI way}
@@ -232,7 +233,7 @@
 \section{HPXCL}
 \subsection{Layout}
 \begin{frame}
-    \frametitle{Layout}
+    \frametitle{HPXCL - Overview}
     \begin{itemize}
         \item Is an implementation of that concept.
         \item Wraps every OpenCL datastructure in a component:
@@ -250,27 +251,129 @@
     \end{itemize}
 \end{frame}
 
+\definecolor{dark_green}{RGB}{0,180,0}
+\lstset{language=C++,
+                basicstyle=\ttfamily\small,
+                columns=fullflexible,
+                keepspaces=true,
+                numbers=left,
+                %xleftmargin=2em,
+                showstringspaces=false,
+                frame=single,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{dark_green}\it\ttfamily,
+                morecomment=[l][\color{magenta}]{\#}
+}
 
 \subsection{Implementing "Hello, World!"}
-\begin{frame}
-    \frametitle{Hello, World! - Getting devices}
+\begin{frame}[fragile]
+    \frametitle{Implementing "Hello, World!" with HPXCL}
+    \begin{itemize}
+        \item Retrieving an OpenCL device:
+        \begin{lstlisting}[firstnumber=30]
+// Get list of available OpenCL devices
+std::vector<hpx::opencl::device> devices =
+    hpx::opencl::get_all_devices( CL_DEVICE_TYPE_ALL,
+                                  "OpenCL 1.1" ).get();
+
+// Check whether there are any devices
+if(devices.size() < 1)
+{
+    hpx::cerr << "No OpenCL devices found!" << hpx::endl;
+    return hpx::finalize();
+}
+
+// Choose the first device found
+hpx::opencl::device cldevice = devices[0];
+        \end{lstlisting}
+    \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Hello, World! - Writing data to the device}
+\begin{frame}[fragile]
+    \frametitle{Implementing "Hello, World!" with HPXCL}
+    \begin{itemize}
+        \item Creating a buffer:
+        \begin{lstlisting}[firstnumber=40]
+// Create a buffer
+hpx::opencl::buffer buf =
+    cldevice.create_buffer(CL_MEM_READ_WRITE, 14);
+        \end{lstlisting}
+        \item Writing to the buffer:
+        \begin{lstlisting}[firstnumber=44]
+// Create some data
+const char[] some_data = { '\x47', '\x65', '\x6b', '\x6b',
+                           '\x6e', '\x2b', '\x1f', '\x56',
+                           '\x6e', '\x71', '\x6b', '\x63',
+                           '\x20', '\xff' };
+
+// Write data to buffer
+auto write_done = buf.enqueue_write(0, 14, some_data);
+        \end{lstlisting}
+    \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Hello, World! - Creating a kernel}
+\begin{frame}[fragile]
+    \frametitle{Implementing "Hello, World!" with HPXCL}
+    \begin{itemize}
+        \item Creating a kernel:
+        \begin{lstlisting}[firstnumber=53]
+const char hello_world_src[] =                                            
+"   __kernel void hello_world(__global char * buf)      \n"
+"   {                                                   \n"
+"       size_t tid = get_global_id(0);                  \n"
+"       buf[tid] = buf[tid] + 1;                        \n"
+"   }                                                   \n";
+
+// Create the program
+hpx::opencl::program prog =
+    cldevice.create_program_with_source(hello_world_src);     
+prog.build();                                                            
+                                                                         
+// Create the kernel                                             
+hpx::opencl::kernel hello_world_kernel =
+    prog.create_kernel("hello_world");           
+        \end{lstlisting}
+    \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Hello, World! - Executing the kernel}
+\begin{frame}[fragile]
+    \frametitle{Implementing "Hello, World!" with HPXCL}
+    \begin{itemize}
+        \item Executing a kernel:
+        \begin{lstlisting}[firstnumber=69]
+// Create the work dimensions
+hpx::opencl::work_size<1> dim;
+dim[0].offset = 0;
+dim[0].size = 14;
+
+// Run the kernel
+auto kernel_done = hello_world_kernel.enqueue(dim,
+                                              write_done);
+        \end{lstlisting}
+    \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Hello, World! - Reading the result}
+\begin{frame}[fragile]
+    \frametitle{Implementing "Hello, World!" with HPXCL}
+    \begin{itemize}
+        \item Reading the result from the buffer:
+        \begin{lstlisting}[firstnumber=78]
+// Read from the buffer
+auto read_result = buf.enqueue_read(0, 14, kernel_done);
+
+// Get the data (blocking call)
+hpx::serialize_buffer<char> data_ptr = read_result.get();
+
+// Print the data. Will print "Hello, World!".
+hpx::cout << data_ptr.data() << hpx::endl;
+
+// Gracefully shut down HPX
+return hpx::finalize();
+        \end{lstlisting}
+    \end{itemize}
 \end{frame}
+
 
 
 \section{Performance and Scaling}
