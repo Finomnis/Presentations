@@ -1,5 +1,4 @@
 \documentclass{beamer}
- \setbeamercovered{transparent}
 
 % Used Packages
 \usepackage[T1]{fontenc}
@@ -13,6 +12,8 @@
 % The THEME
 \usetheme{Madrid}
 \setbeamertemplate{navigation symbols}{}
+ 
+\setbeamercovered{invisible}
 
 % Title Page
 \title{Distributed GPGPU Computing}
@@ -427,7 +428,6 @@ return hpx::finalize();
 \end{frame}
 
 
-\subsection{The Mandelbrot Renderer - Results}
 \begin{frame}
     \frametitle{The Mandelbrot Renderer}
     \begin{block}{Stats for Nerds}
@@ -436,25 +436,36 @@ return hpx::finalize();
             \item Smoothing: 8x8 Supersampling
             \item Bailout: 10000
             \item Maximum iterations: 50000
+            \item GPUs: 32x NVidia Tesla K20
+            \item Render time: \pause \alert{0.6} seconds
         \end{itemize}
     \end{block}
 \end{frame}
 
+\subsection{Results}
 \begin{frame}
     \frametitle{Speedup}
     \begin{center}
-        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/Mandelbrot_bench_stampede.pdf}
+        \includegraphics[width=.9\textwidth]{../2014-09-25_gputalk/Mandelbrot_bench_stampede.pdf}
     \end{center}
 \end{frame}
 
 \begin{frame}
     \frametitle{Parallel Efficiency}
     \begin{center}
-        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/Mandelbrot_bench_stampede_2.pdf}
+        \includegraphics[width=.9\textwidth]{../2014-09-25_gputalk/Mandelbrot_bench_stampede_2.pdf}
     \end{center}
 \end{frame}
 
-
+\begin{frame}
+    \frametitle{Adding Google Maps}
+    \begin{itemize}
+        \item We combined the renderer with the Google Maps API v3:
+        \begin{center}
+            \includegraphics[width=.9\textwidth]{../2014-09-25_gputalk/mandelbrot_pipeline.pdf}
+        \end{center}
+    \end{itemize}
+\end{frame}
 
 \end{document}
 
