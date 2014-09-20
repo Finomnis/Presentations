@@ -8,7 +8,7 @@
 \usepackage{listings}
 \usepackage{verbatim}
 \usepackage{textcomp}
-
+\usepackage{mathtools}
 
 % The THEME
 \usetheme{Madrid}
@@ -129,7 +129,9 @@
 \end{frame}
 \begin{frame}
     \frametitle{OpenCL}
-    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/opencl_overview.pdf}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/opencl_overview.pdf}
+    \end{center}
 \end{frame}
 
 \section{The MPI way}
@@ -148,7 +150,9 @@
 
 \begin{frame}
     \frametitle{Distributed OpenCL with MPI}
-    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
+    \end{center}
 \end{frame}
 
 \begin{frame}
@@ -195,12 +199,16 @@
 
 \begin{frame}
     \frametitle{Distributed OpenCL with HPX}
-    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/hpx_opencl.pdf}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/hpx_opencl.pdf}
+    \end{center}
 \end{frame}
 
 \begin{frame}
     \frametitle{Distributed OpenCL with MPI}
-    \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
+    \end{center}
 \end{frame}
 
 
@@ -302,7 +310,7 @@ hpx::opencl::buffer buf =
         \item Writing to the buffer:
         \begin{lstlisting}[firstnumber=44]
 // Create some data
-const char[] some_data = { '\x47', '\x65', '\x6b', '\x6b',
+const char some_data[] = { '\x47', '\x64', '\x6b', '\x6b',
                            '\x6e', '\x2b', '\x1f', '\x56',
                            '\x6e', '\x71', '\x6b', '\x63',
                            '\x20', '\xff' };
@@ -340,8 +348,13 @@ hpx::opencl::kernel hello_world_kernel =
 \begin{frame}[fragile]
     \frametitle{Implementing "Hello, World!" with HPXCL}
     \begin{itemize}
-        \item Executing a kernel:
+        \item Connecting the buffer to the kernel:
         \begin{lstlisting}[firstnumber=69]
+// Set the buffer as kernel argument
+hello_world_kernel.set_arg(0, buf);
+        \end{lstlisting}
+        \item Executing a kernel:
+        \begin{lstlisting}[firstnumber=72]
 // Create the work dimensions
 hpx::opencl::work_size<1> dim;
 dim[0].offset = 0;
@@ -358,14 +371,14 @@ auto kernel_done = hello_world_kernel.enqueue(dim,
     \frametitle{Implementing "Hello, World!" with HPXCL}
     \begin{itemize}
         \item Reading the result from the buffer:
-        \begin{lstlisting}[firstnumber=78]
+        \begin{lstlisting}[firstnumber=81]
 // Read from the buffer
 auto read_result = buf.enqueue_read(0, 14, kernel_done);
 
 // Get the data (blocking call)
 hpx::serialize_buffer<char> data_ptr = read_result.get();
 
-// Print the data. Will print "Hello, World!".
+// Print the data. This will print "Hello, World!".
 hpx::cout << data_ptr.data() << hpx::endl;
 
 // Gracefully shut down HPX
@@ -378,20 +391,67 @@ return hpx::finalize();
 
 \section{Performance and Scaling}
 
+\newcommand{\iu}{{\mathnormal{i}\mkern1mu}}
 \subsection{The Mandelbrot Renderer} %TODO better title for this subsection
 \begin{frame}
-    \frametitle{bla}
-    %about mandelbrot 
+    \frametitle{The Mandelbrot Renderer}
+    \begin{block}{Mandelbrot Algorithm}
+        The Mandelbrot set is based on the complex series:\\
+        $$z_{n+1} = {z_n}^2 + c, \quad  z_0 = 0$$
+    The set itself is defined as:
+    $\begin{Bmatrix}c \in \mathbb{C}: \exists s \in \mathbb{R}, \forall n \in \mathbb{N},
+                    |z_n| < s\end{Bmatrix}$\\
+    \end{block}
+    \begin{block}{Creating Mandelbrot Images}
+        The mandelbrot set can be visualized by associating every pixel with
+        a coordinate $\begin{pmatrix}x\\y\end{pmatrix}$ and then setting 
+        $\,c = y * \iu + x\,$.
+        \\
+        By coloring pixels by how fast the series diverges, one can create
+        impressive images.
+    \end{block}
 \end{frame}
 
-\subsection{Results}
+\begin{frame}
+    \frametitle{The Mandelbrot Renderer}
+    \begin{center}
+        \includegraphics[height=.8\textheight]{../2014-09-25_gputalk/Mandelbrot1.png}
+    \end{center}
+\end{frame}
 
 \begin{frame}
-    \frametitle{Scaling}
+    \frametitle{The Mandelbrot Renderer}
+    \begin{center}
+        \includegraphics[height=.8\textheight]{../2014-09-25_gputalk/Mandelbrot2.png}
+    \end{center}
+\end{frame}
+
+
+\subsection{The Mandelbrot Renderer - Results}
+\begin{frame}
+    \frametitle{The Mandelbrot Renderer}
+    \begin{block}{Stats for Nerds}
+        \begin{itemize}
+            \item Resolution: 2560x1920
+            \item Smoothing: 8x8 Supersampling
+            \item Bailout: 10000
+            \item Maximum iterations: 50000
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Speedup}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/Mandelbrot_bench_stampede.pdf}
+    \end{center}
 \end{frame}
 
 \begin{frame}
     \frametitle{Parallel Efficiency}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/Mandelbrot_bench_stampede_2.pdf}
+    \end{center}
 \end{frame}
 
 
