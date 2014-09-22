@@ -47,6 +47,9 @@
         - First thing to realize: More cores.
             but: every core is slower, usually ~ 1 GHz.
             also: cores are not as optimized as CPU cores
+            -> CPU optimized for Latency, GPU for throughput
+            -> Problem needs to get split into very small subproblems
+               to achieve the needed parallelism!
         - Next: not every core has a CU!
             this is important, one needs to take that into consideration if programming gpus.
           what does that mean?
@@ -110,7 +113,7 @@
     SPMD based Programming Languages:
     \begin{itemize}
         \item CUDA (NVidia)
-        \item OpenCL (Platform independent)
+        \item OpenCL (Vendor independent)
     \end{itemize}
 \end{frame}
 
@@ -154,13 +157,6 @@
 
 \begin{frame}
     \frametitle{Distributed OpenCL with MPI}
-    \begin{center}
-        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Distributed OpenCL with MPI}
     Disadvantages:
     \begin{itemize}
         \item MPI and OpenCL are independent from each other
@@ -172,6 +168,14 @@
         \item If no further methodes are used, the whole cluster will run in lockstep
     \end{itemize}
 \end{frame}
+
+\begin{frame}
+    \frametitle{Distributed OpenCL with MPI}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
+    \end{center}
+\end{frame}
+
 
 
 \section{The HPX way}
@@ -199,10 +203,34 @@
             - only one user program
             - every opencl device is now global and not just limited to the current node
             - user program can directly use remote devices
+            - asynchronism by using futures
 \end{comment}
 
+\subsection{HPXCL}
+
+\subsection{Layout}
 \begin{frame}
-    \frametitle{Distributed OpenCL with HPX}
+    \frametitle{HPXCL}
+    \begin{itemize}
+        \item Is our implementation of a distributed OpenCL runtime
+        \item Uses HPX as distribution mechanism
+        \item Wraps every OpenCL datastructure in an HPX component:
+            \\~\\
+            \begin{tabular}{ r || l }
+                OpenCL       & HPXCL                \\
+                \hline
+                cl\_device   & hpx::opencl::device  \\
+                cl\_program  & hpx::opencl::program \\
+                cl\_kernel   & hpx::opencl::kernel  \\
+                cl\_mem      & hpx::opencl::buffer  \\
+                cl\_event    & hpx::opencl::event   \\
+                ~            & (soon: hpx::future)  \\
+            \end{tabular}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Distributed OpenCL with HPXCL}
     \begin{center}
         \includegraphics[width=\textwidth]{../2014-09-25_gputalk/hpx_opencl.pdf}
     \end{center}
@@ -214,7 +242,6 @@
         \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
     \end{center}
 \end{frame}
-
 
 
 \subsection{Affect on distributed GPGPU}
@@ -229,37 +256,16 @@
     \frametitle{Affect on distributed GPGPU programming}
     \begin{itemize}
         \item Abstracting the whole cluster as one machine
-        \item Simpler, not need to think in a distributed way
+        \item Simpler, no need to think in a distributed way
         \item Data dependencies
         \begin{itemize}
             \item faster due to prevention of lockstep
             \item possible to apply standard OpenCL synchronization techniques
         \end{itemize}
-        \item Seamless integration of more opencl nodes into the system
+        \item Seamless integration of additional OpenCL nodes into the system
         \item Possibility to run heterogeneous nodes/devices in one system
-        \item Easy to port non-distributed code to distributed opencl whilst
+        \item Easy to port non-distributed code to distributed OpenCL whilst
               maintaining descent scaling
-    \end{itemize}
-\end{frame}
-
-\section{HPXCL}
-\subsection{Layout}
-\begin{frame}
-    \frametitle{HPXCL - Overview}
-    \begin{itemize}
-        \item Is an implementation of that concept.
-        \item Wraps every OpenCL datastructure in a component:
-            \\~\\
-            \begin{tabular}{ r || l }
-                OpenCL       & HPXCL                \\
-                \hline
-                cl\_device   & hpx::opencl::device  \\
-                cl\_program  & hpx::opencl::program \\
-                cl\_kernel   & hpx::opencl::kernel  \\
-                cl\_mem      & hpx::opencl::buffer  \\
-                cl\_event    & hpx::opencl::event   \\
-                ~            & (soon: hpx::future)  \\
-            \end{tabular}
     \end{itemize}
 \end{frame}
 
@@ -278,7 +284,7 @@
                 morecomment=[l][\color{magenta}]{\#}
 }
 
-\subsection{Implementing "Hello, World!"}
+\section{Implementing "Hello, World!" with HPXCL}
 \begin{frame}[fragile]
     \frametitle{Implementing "Hello, World!" with HPXCL}
     \begin{itemize}
@@ -411,7 +417,7 @@ return hpx::finalize();
         a coordinate $\begin{pmatrix}x\\y\end{pmatrix}$ and then setting 
         $\,c = y * \iu + x\,$.
         \\
-        By coloring pixels by how fast the series diverges, one can create
+        Coloring pixels by how fast the series diverges can create
         impressive images.
     \end{block}
 \end{frame}
