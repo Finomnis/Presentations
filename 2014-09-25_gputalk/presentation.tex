@@ -80,7 +80,7 @@
             \begin{itemize}
                 \item \alert{884 GFLOPS}
             \end{itemize}
-            \item Prize: $\sim$ \alert{1500} \$
+            \item Prize: $\sim$ \$ \alert{1500}
         \end{itemize}
         GPU (NVidia Tesla K40):
         \begin{itemize}
@@ -88,7 +88,7 @@
             \begin{itemize}
                 \item \alert{4291 GFLOPS}
             \end{itemize}
-            \item Prize: $\sim$ \alert{4000} \$
+            \item Prize: $\sim$ \$ \alert{4000}
         \end{itemize}
     \end{example}
     ~\\
@@ -110,10 +110,11 @@
     \end{itemize}
     
     ~\\
-    SPMD based Programming Languages:
+    SPMD based programming languages:
     \begin{itemize}
         \item CUDA (NVidia)
         \item OpenCL (Vendor independent)
+        \item C++ AMP (Microsoft)
     \end{itemize}
 \end{frame}
 
@@ -236,15 +237,7 @@
     \end{center}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Distributed OpenCL with MPI}
-    \begin{center}
-        \includegraphics[width=\textwidth]{../2014-09-25_gputalk/mpi_opencl.pdf}
-    \end{center}
-\end{frame}
-
-
-\subsection{Affect on distributed GPGPU}
+\subsection{Effect on distributed GPGPU}
 \begin{comment}
     this slide answers the question:
         what can we achieve with hpx now?
@@ -253,7 +246,7 @@
         someone who already knows opencl will adapt easily to the new system
 \end{comment}
 \begin{frame}
-    \frametitle{Affect on distributed GPGPU programming}
+    \frametitle{Effect on distributed GPGPU programming}
     \begin{itemize}
         \item Abstracting the whole cluster as one machine
         \item Simpler, no need to think in a distributed way
